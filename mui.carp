@@ -1,0 +1,44 @@
+(load "microui.carp")
+(defmodule MUI
+  (def curr-ctx (the (Ptr mu.Context) NULL))
+  (defmacro with-context [ctx cont]
+    (list 'let-do '[prev MUI.curr-ctx] (list 'set! 'MUI.curr-ctx ctx) cont '(set! MUI.curr-ctx prev)))
+  (defn begin [] (mu.begin curr-ctx))
+  (defn end [] (mu.end curr-ctx))
+  (defn begin-window [title rect] (mu.begin_window curr-ctx (cstr title) rect))
+  (defn end-window [] (mu.end_window curr-ctx))
+  (defn begin-panel [title] (mu.begin_panel curr-ctx (cstr title)))
+  (defn end-panel [] (mu.end_panel curr-ctx))
+  (defn begin-column [] (mu.layout_begin_column curr-ctx))
+  (defn end-column [] (mu.layout_end_column curr-ctx))
+  (defn label [title] (mu.label curr-ctx (cstr title)))
+  (defn iheader [title] (mu.header curr-ctx (cstr title)))
+  (defn ibutton [title] (mu.button curr-ctx (cstr title)))
+  (defn width [w] (mu.layout_width curr-ctx w))
+  (defn row [widths height] (mu.layout_row curr-ctx (Array.length widths) (Array.raw @widths) height))
+  (defn islider [v lo hi] (mu.slider curr-ctx v lo hi))
+
+  (defndynamic begin-end0 [beg end cont]
+    (list 'do beg cont end))
+  (defndynamic begin-end [beg end cont]
+    (list 'when (list '/= 0 beg)
+          (list 'do
+                cont
+                end)))
+  (defndynamic act [fn ac]
+    (list 'when (list '/= 0 fn) cont))
+  (defmacro ui [cont]
+    (begin-end0 (list 'MUI.begin) (list 'MUI.end) cont))
+  (defmacro window [title rect cont]
+    (begin-end (list 'begin-window title rect) (list 'end-window) cont))
+  (defmacro header [title cont]
+    (begin-end (list 'iheader title) () cont))
+  (defmacro panel [title cont]
+    (begin-end0 (list 'begin-panel title) (list 'end-panel) cont))
+  (defmacro button [title cont]
+    (begin-end (list 'ibutton title) () cont))
+  (defmacro col [cont] ; XXX Name it column and it will be interpreted as Dynamic.column, why?
+    (begin-end0 (list 'begin-column) (list 'end-column) cont))
+  (defmacro slider [v lo hi cont]
+    (begin-end (list 'islider v lo hi) '() cont))
+  )

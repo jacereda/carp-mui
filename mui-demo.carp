@@ -1,0 +1,123 @@
+(load-and-use GLFW)
+(load "OpenGL.carp") ; Not really used, the renderer is in C. Loaded just to link against the GL library.
+(load "mui.carp")
+(load "mui-render.carp")
+
+(def bg-red 0.0f)
+(def bg-green 0.0f)
+(def bg-blue 0.0f)
+
+(defmodule MUI ; XXX Should really be (use MUI)
+
+  (defn sli [txt v]
+    (do
+      (row &[20 -1] 0)
+      (label txt)
+      (slider v 0.0f 255.0f (IO.println txt))
+      ))
+
+  (defn rgb [ra ga ba]
+    (do
+      (row &[-1] 0)
+       (do
+         (sli "R" ra)
+         (sli "G" ga)
+         (sli "G" ba))))
+
+  (defn test-window []
+    (window "Demo window" (mu.rect 40 40 300 750)
+            (do
+              (row &[-1] 40)
+              (header "Labels"
+                      (do
+                        (row &[50 50] 0)
+                        (label "Label1")
+                        (label "Label2")))
+              (header "Labels 2"
+                      (do
+                        (row &[50 50] 0)
+                        (label "Label1")
+                        (label "Label2")))
+              (row &[-1] 80)
+              (header "Sliders"
+                      (do
+                                        ;                               (row &[0] 100)
+                        (rgb (address bg-red) (address bg-green) (address bg-blue))
+                        ))
+              (row &[-1] 40)
+              (header "Buttons"
+                      (do
+                        (row &[50 -50] 0)
+                        (button "Button1" (IO.println "Pressed 1"))
+                        (button "Button2" (IO.println "Pressed 2"))
+                        ))
+              )))
+
+  (defn process-frame []
+    (ui (test-window)))
+
+) ; MUI module kludge
+
+(defn scale-mouse [a w fb]
+  (to-int (* a (/ (Double.from-int fb) (Double.from-int w)))))
+
+(def mouse-buttons-state 0)
+
+(defn mouse-mask [win]
+  (let-do [mask 0]
+    (for [btn 0 3]
+      (set! mask (Int.bit-or mask (Int.bit-shift-left (GLFW.get-mouse-button win btn) btn))))
+    mask))
+
+(defn handle-events [win ctx]
+  (let-do [mx 0.0
+           my 0.0
+           ww 0
+           wh 0
+           fbw 0
+           fbh 0
+           ]
+    (GLFW.get-cursor-pos win (address mx) (address my))
+    (GLFW.get-framebuffer-size win (address fbw) (address fbh))
+    (GLFW.get-window-size win (address ww) (address wh))
+    (let-do [imx (scale-mouse mx ww fbw)
+             imy (scale-mouse my wh fbh)
+             next (mouse-mask win)
+             ]
+      (mu.input_mousemove ctx imx imy)
+      (let [changes (Int.bit-xor mouse-buttons-state next)]
+        (for [btn 0 3]
+          (let [mask (Int.bit-shift-left 1 btn)]
+            (when (/= 0 (Int.bit-and changes mask))
+              (if (/= 0 (Int.bit-and next mask))
+                (mu.input_mousedown ctx imx imy mask)
+                (mu.input_mouseup ctx imx imy mask))))))
+      (set! mouse-buttons-state next)
+      )))
+
+(defmodule GLFW
+  (register TRUE Int)
+  (register STICKY_MOUSE_BUTTONS Int)
+  )
+
+(defn main []
+  (let-do [_ (GLFW.init)
+           w 800
+           h 600
+           win (GLFW.create-window w h (cstr "Microui demo") NULL NULL)
+           ctx (mu.context)
+           ]
+    (GLFW.set-input-mode win GLFW.STICKY_MOUSE_BUTTONS GLFW.TRUE)
+    (GLFW.make-context-current win)
+    (MUIRender.init ctx)
+    (while (= 0 (GLFW.window-should-close win))
+      (do
+        (handle-events win ctx)
+        (GLFW.get-framebuffer-size win (address w) (address h))
+        (MUIRender.set_window_size w h)
+        (MUI.with-context ctx (MUI.process-frame))
+        (MUIRender.clear (mu.color (to-int bg-red) (to-int bg-green) (to-int bg-blue) 255))
+        (MUIRender.process ctx)
+        (MUIRender.present)
+        (GLFW.swap-buffers win)
+        (GLFW.poll-events)))))

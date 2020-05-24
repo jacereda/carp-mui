@@ -1,0 +1,11 @@
+(relative-include "muirender.c")
+(defmodule MUIRender
+  (register init (λ [(Ptr Context)] ()))
+  (register set_window_size (λ [Int Int] ()))
+  (register clear (λ [Color] ()))
+  (register present (λ [] ()))
+  (register draw_text (λ [(Ptr CChar) Vec2 Color] ()))
+  (register draw_rect (λ [Rect Color] ()))
+  (register draw_icon (λ [Int Rect Color] ()))
+  (register process (λ [(Ptr Context)] ()))
+  )

@@ -103,6 +103,7 @@
   (register FALSE Int)
   (register STICKY_MOUSE_BUTTONS Int)
   (register COCOA_RETINA_FRAMEBUFFER Int)
+  (register TRANSPARENT_FRAMEBUFFER Int)
   )
 
 (defn main []
@@ -113,6 +114,7 @@
            ]
     (ignore (GLFW.init))
     (GLFW.window-hint GLFW.COCOA_RETINA_FRAMEBUFFER GLFW.FALSE)
+    (GLFW.window-hint GLFW.TRANSPARENT_FRAMEBUFFER GLFW.TRUE)
     (set! win (GLFW.create-window w h (cstr "Microui demo") NULL NULL))
     (GLFW.set-input-mode win GLFW.STICKY_MOUSE_BUTTONS GLFW.TRUE)
     (GLFW.make-context-current win)

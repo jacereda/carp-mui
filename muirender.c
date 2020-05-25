@@ -186,6 +186,7 @@ void MUIRender_process(mu_Context * ctx) {
 void MUIRender_set_window_size(int w, int h) {
   width = w;
   height = h;
+  glScissor(0, 0, w, h);
 }
 
 void MUIRender_init(mu_Context * ctx) {

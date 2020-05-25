@@ -7,7 +7,7 @@
 (defmodule mu
   (deftemplate context
     (λ [] (Ptr Context))
-    "#define mu_context() alloca(sizeof(mu_Context))"
+    "#define mu_context() memset(alloca(sizeof(mu_Context)), 0, sizeof(mu_Context))"
     "")
   (register vec2 (λ [Int Int] mu_Vec2))
   (register rect (λ [Int Int Int Int] Rect))

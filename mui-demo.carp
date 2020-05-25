@@ -122,7 +122,6 @@
         (handle-events win ctx)
         (GLFW.get-framebuffer-size win (address w) (address h))
         (MUIRender.set_window_size w h)
-        (println* (str w) " " (str h))
         (MUI.with-context ctx (MUI.process-frame))
         (MUIRender.clear (mu.color (to-int bg-red)
                                    (to-int bg-green)

@@ -6,6 +6,7 @@
 (def bg-red 0.0f)
 (def bg-green 0.0f)
 (def bg-blue 0.0f)
+(def bg-alpha 255.0f)
 
 (defmodule MUI ; XXX Should really be (use MUI)
 
@@ -16,13 +17,14 @@
       (slider v 0.0f 255.0f (IO.println txt))
       ))
 
-  (defn rgb [ra ga ba]
+  (defn rgba [ra ga ba aa]
     (do
       (row &[-1] 0)
        (do
          (sli "R" ra)
          (sli "G" ga)
-         (sli "G" ba))))
+         (sli "B" ba)
+         (sli "A" aa))))
 
   (defn test-window []
     (window "Demo window" (mu.rect 40 40 300 750)
@@ -40,10 +42,11 @@
                         (label "Label2")))
               (row &[-1] 80)
               (header "Sliders"
-                      (do
-                                        ;                               (row &[0] 100)
-                        (rgb (address bg-red) (address bg-green) (address bg-blue))
-                        ))
+                      (rgba
+                       (address bg-red)
+                       (address bg-green)
+                       (address bg-blue)
+                       (address bg-alpha)))
               (row &[-1] 40)
               (header "Buttons"
                       (do
@@ -97,16 +100,20 @@
 
 (defmodule GLFW
   (register TRUE Int)
+  (register FALSE Int)
   (register STICKY_MOUSE_BUTTONS Int)
+  (register COCOA_RETINA_FRAMEBUFFER Int)
   )
 
 (defn main []
-  (let-do [_ (GLFW.init)
-           w 800
+  (let-do [w 800
            h 600
-           win (GLFW.create-window w h (cstr "Microui demo") NULL NULL)
            ctx (mu.context)
+           win NULL
            ]
+    (ignore (GLFW.init))
+    (GLFW.window-hint GLFW.COCOA_RETINA_FRAMEBUFFER GLFW.FALSE)
+    (set! win (GLFW.create-window w h (cstr "Microui demo") NULL NULL))
     (GLFW.set-input-mode win GLFW.STICKY_MOUSE_BUTTONS GLFW.TRUE)
     (GLFW.make-context-current win)
     (MUIRender.init ctx)
@@ -115,8 +122,12 @@
         (handle-events win ctx)
         (GLFW.get-framebuffer-size win (address w) (address h))
         (MUIRender.set_window_size w h)
+        (println* (str w) " " (str h))
         (MUI.with-context ctx (MUI.process-frame))
-        (MUIRender.clear (mu.color (to-int bg-red) (to-int bg-green) (to-int bg-blue) 255))
+        (MUIRender.clear (mu.color (to-int bg-red)
+                                   (to-int bg-green)
+                                   (to-int bg-blue)
+                                   (to-int bg-alpha)))
         (MUIRender.process ctx)
         (MUIRender.present)
         (GLFW.swap-buffers win)

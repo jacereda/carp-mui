@@ -7,6 +7,7 @@
 (def bg-green 0.0f)
 (def bg-blue 0.0f)
 (def bg-alpha 255.0f)
+(def dummy 0.0f)
 
 (defmodule MUI ; XXX Should really be (use MUI)
 
@@ -35,11 +36,13 @@
                         (row &[50 50] 0)
                         (label "Label1")
                         (label "Label2")))
-              (header "Labels 2"
+              (row &[-1] 40)
+              (header "Numbers"
                       (do
                         (row &[50 50] 0)
-                        (label "Label1")
-                        (label "Label2")))
+                        (label "Number")
+                        (when (/= 0 (number (address dummy) 0.1f))
+                          (IO.println &(str dummy)))))
               (row &[-1] 80)
               (header "Sliders"
                       (rgba
@@ -132,4 +135,5 @@
         (MUIRender.process ctx)
         (MUIRender.present)
         (GLFW.swap-buffers win)
-        (GLFW.poll-events)))))
+        (GLFW.poll-events)
+	))))

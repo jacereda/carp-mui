@@ -4,10 +4,12 @@
 (load "mui-render.carp")
 
 (def bg-red 0.0f)
-(def bg-green 0.0f)
-(def bg-blue 0.0f)
-(def bg-alpha 255.0f)
+(def bg-green 100.0f)
+(def bg-blue 160.0f)
+(def bg-alpha 100.0f)
 (def dummy 0.0f)
+(def toggle1 0)
+(def toggle2 1)
 
 (defmodule MUI ; XXX Should really be (use MUI)
 
@@ -43,6 +45,13 @@
                         (label "Number")
                         (when (/= 0 (number (address dummy) 0.1f))
                           (IO.println &(str dummy)))))
+              (row &[-1] 40)
+              (header "Checkboxes"
+                      (do
+                        (row &[100 100] 0)
+                        (ignore (checkbox "Checkbox1" (address toggle1)))
+                        (ignore (checkbox "Checkbox2" (address toggle2)))
+                        ))
               (row &[-1] 80)
               (header "Sliders"
                       (rgba
@@ -107,6 +116,9 @@
   (register STICKY_MOUSE_BUTTONS Int)
   (register COCOA_RETINA_FRAMEBUFFER Int)
   (register TRANSPARENT_FRAMEBUFFER Int)
+  (register ALPHA_BITS Int)
+  (register OPENGL_PROFILE Int)
+  (register OPENGL_CORE_PROFILE Int)
   )
 
 (defn main []
@@ -118,6 +130,7 @@
     (ignore (GLFW.init))
     (GLFW.window-hint GLFW.COCOA_RETINA_FRAMEBUFFER GLFW.FALSE)
     (GLFW.window-hint GLFW.TRANSPARENT_FRAMEBUFFER GLFW.TRUE)
+    (GLFW.window-hint GLFW.ALPHA_BITS 8)
     (set! win (GLFW.create-window w h (cstr "Microui demo") NULL NULL))
     (GLFW.set-input-mode win GLFW.STICKY_MOUSE_BUTTONS GLFW.TRUE)
     (GLFW.make-context-current win)

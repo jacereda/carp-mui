@@ -13,6 +13,7 @@
   (defn end-column [] (mu.layout_end_column ctx))
   (defn label [title] (mu.label ctx (cstr title)))
   (defn number [v step] (mu.number ctx v step))
+  (defn checkbox [title v] (mu.checkbox ctx (cstr title) v))
   (defn iheader [title] (mu.header ctx (cstr title)))
   (defn ibutton [title] (mu.button ctx (cstr title)))
   (defn width [w] (mu.layout_width ctx w))

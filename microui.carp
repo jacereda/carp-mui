@@ -79,4 +79,8 @@
   (register end_popup (λ [(Ptr Context)] ()))
   (register begin_panel_ex (λ [(Ptr Context) (Ptr CChar) Int] ()))
   (register end_panel (λ [(Ptr Context)] ()))
+
+  (register MOUSE-LEFT Int "MU_MOUSE_LEFT")
+  (register MOUSE-RIGHT Int "MU_MOUSE_RIGHT")
+  (register MOUSE-MIDDLE Int "MU_MOUSE_MIDDLE")
   )
